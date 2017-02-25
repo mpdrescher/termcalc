@@ -4,10 +4,12 @@ extern crate calc;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
+use std::collections::HashMap;
+use std::fmt::Display;
+
 use calc::engine::{Engine, LineResult};
 
 fn main() {
-    println!("==CALCULATOR==");
     let mut engine = Engine::new();
     let mut rl = Editor::<()>::new();
     let mut counter = 0;
@@ -17,6 +19,11 @@ fn main() {
             Ok(line) => {
                 if line == ":q" || line == ":quit" {
                     return;
+                }
+                if line.starts_with(":") {
+                    if execute_cmd(&line, &engine) {
+                        continue;
+                    }
                 }
                 rl.add_history_entry(&line);
                 let result = engine.eval_line(line);
@@ -46,5 +53,26 @@ fn main() {
                 break
             }
         }
+    }
+}
+
+fn execute_cmd(cmd: &str, engine: &Engine) -> bool {
+    match cmd {
+        ":vars" => {
+            print_hashmap(engine.vars());
+        },
+        ":functions" => {
+            for elem in engine.functions() {
+                println!("    {} : {:?}", elem.0, elem.1.args());
+            }
+        },
+        _ => return false
+    }
+    true
+}
+
+fn print_hashmap<T>(hm: &HashMap<String, T>) where T: Display {
+    for elem in hm {
+        println!("    {} : {}", elem.0, elem.1);
     }
 }

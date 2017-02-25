@@ -1,5 +1,6 @@
 pub mod engine;
-pub mod value;
+mod value;
 pub mod tokenize;
 pub mod interpreter;
 mod stdlib;
+mod function;
