@@ -41,6 +41,7 @@ pub fn match_fn(name: String, valstack: &mut Vec<Value>) -> Result<Value, String
         "abs" => abs(valstack),
         "floor" => floor(valstack),
         "ceil" => ceil(valstack),
+        "if" => fnif(valstack),
         _ => Err(format!("unknown function: {}", name))
     }
 }

@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::io::{self, Read};
+use std::fs::File;
 
 use interpreter;
 use value::Value;
@@ -50,14 +52,8 @@ impl Engine {
     }
 
     //true if already exists
-    pub fn add_func(&mut self, name: String, func: Function) -> bool {
-        if self.functions.contains_key(&name) {
-            false
-        }
-        else {
-            let _ = self.functions.insert(name, func);
-            true
-        }
+    pub fn add_func(&mut self, name: String, func: Function) {
+        let _ = self.functions.insert(name, func);
     }
 
     pub fn eval_line(&mut self, line: String) -> LineResult {
@@ -71,6 +67,25 @@ impl Engine {
                         },
                         ":fn" => {
                             self.fn_cmd(param.trim().to_owned())
+                        },
+                        ":load" => {
+                            let script = match read_file(param.trim().to_owned()) {
+                                Ok(v) => v,
+                                Err(e) => return LineResult::Error(format!("file read error: {}", e))
+                            };
+                            for line in script.split('\n') {
+                                if line.trim().len() == 0 {
+                                    continue;
+                                }
+                                match self.eval_line(line.to_owned()) {
+                                    LineResult::Value(_) => {},
+                                    LineResult::Error(e) => {
+                                        return LineResult::Error(format!("error in script: {}", e))
+                                    },
+                                    LineResult::Success => {}
+                                };
+                            }
+                            LineResult::Success
                         }
                         _ => {
                             LineResult::Error(format!("unknown command: '{}'", cmd))
@@ -110,12 +125,8 @@ impl Engine {
             Ok(v) => v,
             Err(e) => return LineResult::Error(format!("function parse error: {}", e))
         };
-        if self.add_func(func_name.clone(), func) {
-            LineResult::Success
-        }
-        else {
-            LineResult::Error(format!("function named '{}' already exists", func_name))
-        }
+        self.add_func(func_name.clone(), func);
+        LineResult::Success
     }
 
     fn set_cmd(&mut self, param: String) -> LineResult {
@@ -136,6 +147,13 @@ impl Engine {
         self.set_val(arg1.to_owned(), val);
         LineResult::Success
     }
+}
+
+fn read_file(path: String) -> Result<String, io::Error> {
+    let mut result = String::new();
+    let mut file = File::open(path)?;
+    file.read_to_string(&mut result)?;
+    Ok(result)
 }
 
 pub enum StatementResult {
