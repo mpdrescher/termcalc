@@ -1,0 +1,15 @@
+[package]
+name = "calc"
+version = "0.1.0"
+authors = ["Matthias Drescher <matthias_p_drescher@t-online.de>"]
+
+[lib]
+name = "calc"
+path = "src/lib/lib.rs"
+
+[[bin]]
+name = "calc"
+path = "src/main.rs"
+
+[dependencies]
+rustyline = "1.0.0"
