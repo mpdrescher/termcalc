@@ -61,7 +61,7 @@ fn execute_cmd(cmd: &str, engine: &Engine) -> bool {
         ":vars" => {
             print_hashmap(engine.vars());
         },
-        ":functions" => {
+        ":fns" => {
             for elem in engine.functions() {
                 println!("    {} : {:?}", elem.0, elem.1.args());
             }

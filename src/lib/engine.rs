@@ -62,7 +62,7 @@ impl Engine {
                 Some(index) => {
                     let (cmd, param) = line.split_at(index);
                     match cmd {
-                        ":set" => {
+                        ":var" => {
                             self.set_cmd(param.trim().to_owned())
                         },
                         ":fn" => {
@@ -74,7 +74,7 @@ impl Engine {
                                 Err(e) => return LineResult::Error(format!("file read error: {}", e))
                             };
                             for line in script.split('\n') {
-                                if line.trim().len() == 0 {
+                                if line.trim().len() == 0 || line.trim().starts_with("--") {
                                     continue;
                                 }
                                 match self.eval_line(line.to_owned()) {
@@ -86,7 +86,19 @@ impl Engine {
                                 };
                             }
                             LineResult::Success
-                        }
+                        },
+                        ":rvar" => {
+                            match self.vars.remove(param.trim()) {
+                                Some(_) => LineResult::Success,
+                                None => LineResult::Error(format!("var {} not found", param))
+                            }
+                        },
+                        ":rfn" => {
+                            match self.functions.remove(param.trim()) {
+                                Some(_) => LineResult::Success,
+                                None => LineResult::Error(format!("function {} not found", param))
+                            }
+                        },
                         _ => {
                             LineResult::Error(format!("unknown command: '{}'", cmd))
                         }
