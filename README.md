@@ -86,10 +86,11 @@ termcalc:
 
 ## Some rules:
 
-- ```function! X``` equals ```function(X)```
+- __```function! X``` equals ```function(X)```__
+- __function names start with a lowercase, and variables with an uppercase character__
 - __recursion is not possible in the current state__
 
-```:fn count X = if (X = 0, 1, count(X))``` is syntactically possible, but crashes
+```:fn sumall X = if (X = 0, 1, X+sumall(X-1))``` is syntactically possible, but crashes
 
 Calling other functions within a function is perfectly fine, though.
 
@@ -99,7 +100,6 @@ Calling other functions within a function is perfectly fine, though.
 :fn testfn X = X^3 [-> X is referring to the argument, not the var]
 ```
 
-
 ## List of all arithmetic functions
 
 - ```add (x y)``` alias ```x+y```: add the two values (int + int = int, else float)
@@ -107,7 +107,7 @@ Calling other functions within a function is perfectly fine, though.
 - ```div (x y)``` alias ```x/y```: divide the two values (always float)
 - ```mul (x y)``` alias ```x*y```: multiply the two values (int * int = int, felse loat)
 - ```pow (x,y)``` alias ```x^y```: x to the power of y (x = int -> int, y = float -> float)
-- ```neg (x)```: returns ```-x```, neg (int) = int, neg (float) = float
+- ```neg (x)``` alias ```-x```: returns negative x, neg (int) = int, neg (float) = float
 - ```sqrt (x)```: the square root of x (always float)
 - ```sin (x), cos (x), tan (x), sinh (x), cosh (x), tanh (x)``` (always float)
 - ```abs (x)```: |x| (x = int -> int, y = float -> float)
@@ -128,3 +128,12 @@ Calling other functions within a function is perfectly fine, though.
 - ```:rvar [name]```: delete variable,
 - ```:rfn [name]```: delete function,
 - ```:load [path]```: loads a script
+
+### Precedence
+
+In order:
+- +, -
+- *, /
+- ^
+- UnarySub (aka. neg, aka. (-x))
+- =, <, >
