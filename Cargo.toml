@@ -1,14 +1,14 @@
 [package]
-name = "calc"
+name = "termcalc"
 version = "0.1.0"
 authors = ["Matthias Drescher <matthias_p_drescher@t-online.de>"]
 
 [lib]
-name = "calc"
+name = "termcalc"
 path = "src/lib/lib.rs"
 
 [[bin]]
-name = "calc"
+name = "termcalc"
 path = "src/main.rs"
 
 [dependencies]

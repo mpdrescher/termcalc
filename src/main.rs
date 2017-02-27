@@ -1,5 +1,5 @@
 extern crate rustyline;
-extern crate calc;
+extern crate termcalc;
 
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
@@ -7,7 +7,7 @@ use rustyline::Editor;
 use std::collections::HashMap;
 use std::fmt::Display;
 
-use calc::engine::{Engine, LineResult};
+use termcalc::engine::{Engine, LineResult};
 
 fn main() {
     let mut engine = Engine::new();
