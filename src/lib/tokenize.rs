@@ -3,20 +3,20 @@ use std::str::FromStr;
 use value::Value;
 
 pub const SPACED_OPS: [char; 11] = ['+', '-', '*', '/', '(', ')', ',', '^', '=', '<', '>'];
-pub const OPS: [Token; 8] = [Token::Add, Token::Sub, Token::Mul,
+pub const OPS: [Token; 9] = [Token::Add, Token::Sub, Token::Mul, Token::UnarySub,
                         Token::Div, Token::Pow, Token::Equals, Token::GreaterThan, Token::LesserThan];
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Add,
     Sub,
+    UnarySub,
     SubMonad,
     Mul,
     Div,
     Pow,
     BrOpen,
     BrClose,
-    Assign,
     Seperator,
     Equals,
     GreaterThan,
@@ -34,9 +34,10 @@ impl Token {
             Token::Mul => 2,
             Token::Div => 2,
             Token::Pow => 3,
-            Token::Equals => 4,
-            Token::GreaterThan => 4,
-            Token::LesserThan => 4,
+            Token::UnarySub => 4,
+            Token::Equals => 5,
+            Token::GreaterThan => 5,
+            Token::LesserThan => 5,
             _ => 0
         }
     }
@@ -50,6 +51,7 @@ pub fn function_of_token(token: Token) -> String {
     match token {
         Token::Add => String::from("add"),
         Token::Sub => String::from("sub"),
+        Token::UnarySub => String::from("neg"),
         Token::Mul => String::from("mul"),
         Token::Div => String::from("div"),
         Token::Pow => String::from("pow"),
@@ -60,25 +62,23 @@ pub fn function_of_token(token: Token) -> String {
     }
 }
 
-pub fn is_assignment(vec: Vec<Token>) -> bool {
-    vec.iter().any(|x| *x == Token::Assign)
-}
-
 pub fn tokenize(mut line: String) -> Vec<Token> {
     let mut result = Vec::new();
     line = space_ops(line);
     let mut enclose_next = false; //set () around next token for [fn]!
+    let mut last_token = Token::Add;
     for word in line.split_whitespace() {
-        let token = match_token(word);
+        let token = match_token(word, last_token);
         if enclose_next {
             result.push(Token::BrOpen);
-            result.push(token);
+            result.push(token.clone());
             result.push(Token::BrClose);
             enclose_next = false;
         }
         else {
-            result.push(token);
+            result.push(token.clone());
         }
+        last_token = token;
         if word.ends_with("!") {
             enclose_next = true;
         }
@@ -86,10 +86,15 @@ pub fn tokenize(mut line: String) -> Vec<Token> {
     result
 }
 
-fn match_token(word: &str) -> Token {
+fn match_token(word: &str, last_token: Token) -> Token {
     match word {
         "+" => Token::Add,
-        "-" => Token::Sub,
+        "-" => {
+            match last_token {
+                Token::Value(_) | Token::Function(_) | Token::Variable(_) => Token::Sub,
+                _ => Token::UnarySub
+            }
+        },
         "*" => Token::Mul,
         "/" => Token::Div,
         "(" => Token::BrOpen,
