@@ -62,7 +62,7 @@ Use a custom or builtin function:
 > sin! 0.5
     $1: 0.479425538604203 [float]
 > :fn test X = X+5
-> test 17
+> test! 17
     $2: 22 [int]
 ```
 
@@ -80,7 +80,7 @@ termcalc:
 > :load test.txt
 > X+5
     $0: 10 [int]
-> testfn X
+> testfn! X
     $1: 125 [int]
 ```
 
@@ -94,7 +94,7 @@ termcalc:
 
 Calling other functions within a function is perfectly fine, though.
 
-- function parameters before variables:
+- __function parameters before variables:__
 ```
 :var X 5
 :fn testfn X = X^3 [-> X is referring to the argument, not the var]
